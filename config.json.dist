@@ -1,6 +1,4 @@
 {
-    "BOX_VERSION": "0.4.0",
-    "BOX_DESCRIPTION": "* Ubuntu 16.04 LTS xenial 64bits\n* git\n* vim\n* Docker 1.11.2\n* Docker-compose 1.7.1\n* Docker-machine 0.7.0\n* Samba (CIFS network shared folder)",
     "headless": "true",
     "TZ_CONTINENT": "UTC",
     "TZ_COUNTRY": "",

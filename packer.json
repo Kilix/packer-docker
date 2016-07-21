@@ -152,18 +152,18 @@
                 "type": "vagrant",
                 "compression_level": "9",
                 "keep_input_artifact": true
+            },
+            {
+                "type": "atlas",
+                "only": ["virtualbox-iso"],
+                "artifact": "{{user `atlas_username`}}/{{user `atlas_name`}}",
+                "artifact_type": "vagrant.box",
+                "metadata": {
+                    "provider": "virtualbox",
+                    "version": "0.4.0",
+                    "description" : "* Ubuntu 16.04 LTS xenial 64bits\n* git\n* vim\n* Docker 1.11.2\n* Docker-compose 1.7.1\n* Docker-machine 0.7.0\n* Samba (CIFS network shared folder)"
+                }
             }
-        ],
-        {
-            "type": "atlas",
-            "only": ["virtualbox-iso"],
-            "artifact": "{{user `atlas_username`}}/{{user `atlas_name`}}",
-            "artifact_type": "vagrant.box",
-            "metadata": {
-                "provider": "virtualbox",
-                "version": "{{ user `BOX_VERSION` }}",
-                "description" : "{{ user `BOX_DESCRIPTION` }}"
-            }
-        }
+        ]
     ]
 }
