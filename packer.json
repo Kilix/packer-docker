@@ -1,0 +1,169 @@
+{
+    "variables": {
+        "BOX_NAME": "kilix-docker",
+        "BOX_VERSION": "0.4.0",
+        "BOX_DESCRIPTION": "",
+
+        "atlas_username": "kilix",
+        "atlas_name": "docker-host",
+
+        "OS_NAME": "ubuntu",
+        "OS_ENV": "server",
+        "OS_ARCH": "amd64",
+        "OS_VERSION": "16.04",
+        "OS_ISO_CHECKSUM": "b8b172cbdf04f5ff8adc8c2c1b4007ccf66f00fc6a324a6da6eba67de71746f6",
+
+        "install_preseed": "preseed.cfg",
+
+        "headless": "true",
+
+        "docker_machine_version": "0.7.0",
+
+        "TZ_CONTINENT": "UTC",
+        "TZ_COUNTRY": "",
+        "DEFAULT_LOCALE": "en_US",
+        "DEFAULT_CHARSET": "UTF-8",
+
+        "UNIX_USER": "vagrant",
+        "UNIX_PASSWORD": "vagrant",
+        "data_dir": "/home/vagrant/install_data",
+
+        "hardware_disk": "40960",
+        "hardware_cpu": "2",
+        "hardware_memory": "1024",
+
+        "ssh_port": "22",
+        "network_hostname": "vagrant-docker",
+        "network_domain": "local"
+    },
+    "builders": [
+        {
+          "type": "virtualbox-iso",
+          "boot_command": [
+            "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+            "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+            "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+            "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+            "/install/vmlinuz<wait>",
+            " auto<wait>",
+            " console-setup/ask_detect=false<wait>",
+            " console-setup/layoutcode=us<wait>",
+            " console-setup/modelcode=pc105<wait>",
+            " debconf/frontend=noninteractive<wait>",
+            " debian-installer=en_US<wait>",
+            " fb=false<wait>",
+            " initrd=/install/initrd.gz<wait>",
+            " kbd-chooser/method=fr<wait>",
+            " keyboard-configuration/layout=USA<wait>",
+            " keyboard-configuration/variant=USA<wait>",
+            " locale=en_US<wait>",
+            " netcfg/get_domain=local<wait>",
+            " netcfg/get_hostname=vagrant-docker<wait>",
+            " grub-installer/bootdev=/dev/sda<wait>",
+            " noapic<wait>",
+            " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg",
+            " -- <wait>",
+            "<enter><wait>"
+          ],
+          "boot_wait": "10s",
+          "headless": "{{ user `headless` }}",
+          "disk_size": "{{ user `hardware_disk` }}",
+          "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+          "guest_os_type": "Ubuntu_64",
+          "http_directory": "http",
+          "iso_checksum": "{{ user `OS_ISO_CHECKSUM` }}",
+          "iso_checksum_type": "sha256",
+          "iso_url": "http://releases.ubuntu.com/{{ user `OS_VERSION` }}/{{ user `OS_NAME` }}-{{ user `OS_VERSION` }}-{{ user `OS_ENV` }}-{{ user `OS_ARCH` }}.iso",
+          "shutdown_command": "echo 'vagrant'|sudo -S shutdown -P now",
+          "ssh_username": "{{ user `UNIX_USER` }}",
+          "ssh_password": "{{ user `UNIX_PASSWORD` }}",
+          "ssh_port": "{{ user `ssh_port` }}",
+          "ssh_wait_timeout": "10000s",
+          "type": "virtualbox-iso",
+          "vm_name": "{{ user `BOX_NAME` }}",
+          "vboxmanage": [
+              [ "modifyvm", "{{.Name}}", "--memory", "{{ user `hardware_memory` }}" ],
+              [ "modifyvm", "{{.Name}}", "--cpus", "{{ user `hardware_cpu` }}" ]
+          ],
+          "virtualbox_version_file": ".vbox_version"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo '{{ user `UNIX_PASSWORD` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "inline": [
+                "mkdir {{ user `data_dir` }}",
+                "chown -R {{ user `UNIX_USER` }}:{{ user `UNIX_USER` }} {{ user `data_dir` }}"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "data/",
+            "destination": "{{ user `data_dir` }}"
+        },
+        {
+            "type": "shell",
+            "environment_vars": [
+                "DATA_DIR={{ user `data_dir` }}",
+                "APT_BIN=apt-get",
+                "ADMIN_USER={{ user `UNIX_USER` }}",
+
+                "TZ_CONTINENT={{ user `TZ_CONTINENT` }}",
+                "TZ_COUNTRY={{ user `TZ_COUNTRY` }}",
+                "DEFAULT_LOCALE={{ user `DEFAULT_LOCALE` }}",
+                "DEFAULT_CHARSET={{ user `DEFAULT_CHARSET` }}",
+
+                "NETWORK_HOSTNAME={{ user `network_hostname` }}",
+                "NETWORK_DOMAIN={{ user `network_domain` }}",
+
+                "DOCKER_MACHINE_VERSION={{ user `docker_machine_version` }}"
+            ],
+            "execute_command": "echo '{{ user `UNIX_PASSWORD` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "scripts": [
+                "scripts/01_update.sh",
+                "scripts/02_basictools.sh",
+                "scripts/03_hosts.sh",
+                "scripts/04_hostname.sh",
+                "scripts/05_locales.sh",
+                "scripts/06_sshd.sh",
+                "scripts/07_networking.sh",
+                "scripts/08_sudoers.sh",
+                "scripts/09_vagrant.sh",
+                "scripts/10_vmtools.sh",
+                "scripts/11_samba.sh",
+                "scripts/12_config.sh",
+                "scripts/13_docker.sh",
+                "scripts/14_grub.sh",
+                "scripts/15_cleanup.sh"
+            ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo '{{ user `UNIX_PASSWORD` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+            "inline": [
+                "rm -rf {{ user `data_dir` }}"
+            ]
+        }
+    ],
+    "post-processors": [
+        [
+            {
+                "type": "vagrant",
+                "compression_level": "9",
+                "keep_input_artifact": true
+            }
+        ],
+        {
+            "type": "atlas",
+            "only": ["virtualbox-iso"],
+            "artifact": "{{user `atlas_username`}}/{{user `atlas_name`}}",
+            "artifact_type": "vagrant.box",
+            "metadata": {
+                "provider": "virtualbox",
+                "version": "{{ user `BOX_VERSION` }}",
+                "description" : "{{ user `BOX_DESCRIPTION` }}"
+            }
+        }
+    ]
+}
