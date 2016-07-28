@@ -24,3 +24,4 @@ alias dufr='du -sk * | sort -nr | perl -ne '\''($s,$f)=split(m{\t});for (qw(K M 
 alias dfh='df -hT --total'
 alias dk='docker'
 alias dkc='docker-compose'
+alias dkm='docker-machine'
