@@ -1,7 +1,7 @@
 {
     "variables": {
         "BOX_NAME": "kilix-docker",
-        "BOX_VERSION": "0.4.0",
+        "BOX_VERSION": "0.4.1",
         "BOX_DESCRIPTION": "",
 
         "atlas_username": "kilix",
@@ -160,7 +160,7 @@
                 "artifact_type": "vagrant.box",
                 "metadata": {
                     "provider": "virtualbox",
-                    "version": "0.4.0",
+                    "version": "0.4.1",
                     "description" : "* Ubuntu 16.04 LTS xenial 64bits\n* git\n* vim\n* Docker 1.11.2\n* Docker-compose 1.7.1\n* Docker-machine 0.7.0\n* Samba (CIFS network shared folder)"
                 }
             }
